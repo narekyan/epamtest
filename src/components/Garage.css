@@ -25,12 +25,8 @@
 
 }
 
-@keyframes moveRight {
-  0% {
-    transform: translateX(0);
-  }
-
-  100% {
-    transform: translateX(500%);
-  }
+.race-generate {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
 }
