@@ -7,6 +7,7 @@ const Garage: React.FC = () => {
     const [currentPage, setCurrentPage] = useState<number>(1); // State to track current page
     const [viewName, setViewName] = useState<string>('Garage'); // Name of the current view
     const [velocity, setVelocity] = useState<{ [carId: number]: number }>({});
+    const [translateValue, setTranslateValue] = useState<{ [carId: number]: number }>({});
     const [isAnimating, setIsAnimating] = useState<{ [carId: number]: boolean }>({});
     const [totalCars, setTotalCars] = useState<number>(0);
     const [pageSize] = useState(7); // Number of cars per page
@@ -86,54 +87,53 @@ const Garage: React.FC = () => {
         return cars.map((car: any, index: number) => (
             <div key={index} className="car" style={{ marginBottom: '10px' }}>
                 {/* Editable input field for the car name */}
-                <div style={{ marginBottom: '5px' }}>
-                    <input
-                        type="text"
-                        value={car.name}
-                        onChange={(e) => handleNameChange(index, e.target.value)}
-                        style={{ marginRight: '10px' }}
-                    />
-                </div>
-                {/* Color preview and selection */}
-                <div style={{ marginBottom: '5px' }}>
-                    <div className="color-preview" style={{ backgroundColor: car.color, marginRight: '10px' }}></div>
+                <div className='name-color' style={{ marginBottom: '5px' }}>
+                    <div className="color-preview" style={{ backgroundColor: car.color }}></div>
                     <input
                         type="color"
                         value={car.color}
                         onChange={(e) => handleColorChange(index, e.target.value)}
-                        style={{ marginRight: '10px' }}
+                        style={{ width: '30px', marginRight: '5px' }}
                     />
-                </div>
-                {/* Buttons to update and delete the car */}
-                <div style={{ marginBottom: '5px' }}>
-                    {/* Button to update the car */}
-                    <button onClick={() => handleUpdateCar(car.id, car.name, car.color)}>Update</button>
+                    <input
+                        type="text"
+                        value={car.name}
+                        onChange={(e) => handleNameChange(index, e.target.value)}
+                        style={{ marginRight: '5px' }}
+                    />
+
+                    <button style={{ marginRight: '5px' }} onClick={() => handleUpdateCar(car.id, car.name, car.color)}>Update</button>
+
                     {/* Button to delete the car */}
                     <button onClick={() => handleDeleteCar(car.id)}>Delete</button>
                 </div>
+                {/* Color preview and selection */}
+                {/* Buttons to update and delete the car */}
                 <div style={{ marginBottom: '5px' }}>
                     {/* Button to update the car */}
-                    <button onClick={() => handleStartCar(car.id)}>Start</button>
+                    <button style={{ marginRight: '5px' }} disabled={isAnimating[car.id]} onClick={() => handleStartCar(car.id)}>Start</button>
                     {/* Button to delete the car */}
-                    <button onClick={() => handleStopCar(car.id)}>Stop</button>
+                    <button disabled={!isAnimating[car.id]} onClick={() => handleStopCar(car.id)}>Stop</button>
                 </div>
                 {/* Car icon */}
-                <div style={{ marginTop: '5px' }}>
-                    <div className="car-container">
+                <div className='car-cont' style={{ width: '100%' }}>
+                    <div className="car-container" style={{ paddingTop: '3px', paddingLeft: '2px' }}>
                         <img
                             className="car-icon"
                             src="/car.png"
                             alt="Car Icon"
                             style={{
+                                backgroundColor: car.color,
                                 width: '60px',
                                 height: '50px',
-                                animation: isAnimating[car.id] ? `moveRight ${velocity[car.id] / 10}s linear infinite` : 'none'
+                                animation: isAnimating[car.id] ? `moveRight ${velocity[car.id] / 10}s linear infinite` : 'none',
+                                transform: `translateX(${translateValue}px)`
                             }}
                         />
                     </div>
 
                 </div>
-            </div>
+            </div >
         ));
     };
 
@@ -193,6 +193,12 @@ const Garage: React.FC = () => {
             });
             const data = await response.json();
 
+            const newTranslateValue = window.innerWidth; // Set it to the width of the viewport
+
+            setTranslateValue((prevState) => ({
+                ...prevState,
+                [carId]: 100, // Set animation status for this car to true
+            }));
             setVelocity((prevState) => ({
                 ...prevState,
                 [carId]: data.velocity, // Set animation status for this car to true

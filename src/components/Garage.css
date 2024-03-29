@@ -6,12 +6,23 @@
   align-items: flex-start;
 }
 
-input {
-  margin-top: 5px;
-}
-
 .car {
   margin-top: 20px;
+}
+
+.car-list {
+  width: 100%;
+}
+
+.car-cont {
+  width: 100%;
+  background-color: aqua;
+}
+
+.name-color {
+  display: flex;
+  justify-content: flex-start;
+
 }
 
 @keyframes moveRight {
@@ -20,6 +31,6 @@ input {
   }
 
   100% {
-    transform: translateX(100%);
+    transform: translateX(500%);
   }
 }
