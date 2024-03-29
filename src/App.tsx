@@ -10,10 +10,10 @@ function App() {
         <header>
           <h1>Async Race</h1>
           <nav>
-            <ul>
-              <li><a href="/">Garage</a></li>
-              <li><a href="/winners">Winners</a></li>
-            </ul>
+
+            <li><a href="/">Garage</a></li>
+            <li><a href="/winners">Winners</a></li>
+
           </nav>
         </header>
         <main>

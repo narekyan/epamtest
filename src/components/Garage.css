@@ -1,0 +1,15 @@
+.garage-container {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+input {
+  margin-top: 5px;
+}
+
+.car {
+  margin-top: 20px;
+}
