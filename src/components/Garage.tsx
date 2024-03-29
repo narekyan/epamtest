@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Pagination from './Pagination'; // Import Pagination component
 import './Garage.css'; // Import CSS for styling
 
 const Garage: React.FC = () => {
