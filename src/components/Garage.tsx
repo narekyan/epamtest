@@ -5,17 +5,43 @@ import './Garage.css'; // Import CSS for styling
 const Garage: React.FC = () => {
     const [cars, setCars] = useState<any[]>([]); // State to store cars
     const [currentPage, setCurrentPage] = useState<number>(1); // State to track current page
-    const [totalPages, setTotalPages] = useState<number>(0); // State to track total pages
     const [viewName, setViewName] = useState<string>('Garage'); // Name of the current view
+    const [velocity, setVelocity] = useState<{ [carId: number]: number }>({});
+    const [isAnimating, setIsAnimating] = useState<{ [carId: number]: boolean }>({});
+    const [totalCars, setTotalCars] = useState<number>(0);
+    const [pageSize] = useState(7); // Number of cars per page
+    const [carsData, setCarsData] = useState<any[]>([]); // Sample car data
 
     // Function to fetch cars for current page
     const fetchCarsForPage = async (page: number) => {
         const response = await fetch(`http://localhost:3000/garage?_page=${page}&_limit=7`);
         const data = await response.json();
+        setTotalCars(getTotalCars(response));
         if (data) { // Check if data and data.cars are not null
             setCars(data);
 
         }
+
+    };
+
+    const getTotalCars = (response: Response) => {
+        const totalCountHeader = response.headers.get('X-Total-Count');
+        return totalCountHeader ? parseInt(totalCountHeader, 10) : 0;
+    };
+
+    const getCarsForPage = () => {
+        const startIndex = (currentPage - 1) * pageSize;
+        const endIndex = Math.min(startIndex + pageSize, carsData.length);
+        return carsData.slice(startIndex, endIndex);
+    };
+
+    // Function to handle pagination
+    const handleNextPage = () => {
+        setCurrentPage((prevPage) => prevPage + 1);
+    };
+
+    const handlePrevPage = () => {
+        setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
     };
 
     // Function to generate random cars
@@ -41,14 +67,6 @@ const Garage: React.FC = () => {
         });
     };
 
-    // Function to handle color selection
-    const handleColorSelection = (carIndex: number, color: string) => {
-        // Update the color of the car at the specified index
-        const updatedCars = [...cars];
-        updatedCars[carIndex].color = color;
-        setCars(updatedCars);
-    };
-
     const handleNameChange = (index: number, newName: string) => {
         setCars((prevCars) =>
             prevCars.map((car, i) => (i === index ? { ...car, name: newName } : car))
@@ -60,34 +78,6 @@ const Garage: React.FC = () => {
         setCars((prevCars) =>
             prevCars.map((car, i) => (i === index ? { ...car, color: newColor } : car))
         );
-    };
-
-    // Function to calculate the hue from the given color
-    const calculateHue = (color: string) => {
-        // Convert the hex color to RGB
-        const r = parseInt(color.substring(1, 3), 16) / 255;
-        const g = parseInt(color.substring(3, 5), 16) / 255;
-        const b = parseInt(color.substring(5, 7), 16) / 255;
-
-        // Convert RGB to HSL
-        const max = Math.max(r, g, b);
-        const min = Math.min(r, g, b);
-        let hue = 0;
-
-        if (max === min) {
-            hue = 0;
-        } else if (max === r) {
-            hue = ((g - b) / (max - min)) * 60;
-        } else if (max === g) {
-            hue = 120 + ((b - r) / (max - min)) * 60;
-        } else {
-            hue = 240 + ((r - g) / (max - min)) * 60;
-        }
-
-        // Ensure hue is between 0 and 360
-        hue = (hue + 360) % 360;
-
-        return hue;
     };
 
 
@@ -121,6 +111,12 @@ const Garage: React.FC = () => {
                     {/* Button to delete the car */}
                     <button onClick={() => handleDeleteCar(car.id)}>Delete</button>
                 </div>
+                <div style={{ marginBottom: '5px' }}>
+                    {/* Button to update the car */}
+                    <button onClick={() => handleStartCar(car.id)}>Start</button>
+                    {/* Button to delete the car */}
+                    <button onClick={() => handleStopCar(car.id)}>Stop</button>
+                </div>
                 {/* Car icon */}
                 <div style={{ marginTop: '5px' }}>
                     <div className="car-container">
@@ -131,6 +127,7 @@ const Garage: React.FC = () => {
                             style={{
                                 width: '60px',
                                 height: '50px',
+                                animation: isAnimating[car.id] ? `moveRight ${velocity[car.id] / 10}s linear infinite` : 'none'
                             }}
                         />
                     </div>
@@ -186,6 +183,47 @@ const Garage: React.FC = () => {
         }
     };
 
+    const handleStartCar = async (carId: number) => {
+        try {
+            const response = await fetch(`http://localhost:3000/engine?id=${carId}&status=started`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+
+            setVelocity((prevState) => ({
+                ...prevState,
+                [carId]: data.velocity, // Set animation status for this car to true
+            }));
+            setIsAnimating((prevState) => ({
+                ...prevState,
+                [carId]: true, // Set animation status for this car to true
+            }));
+        } catch (error) {
+            console.error('Error starting car:', error);
+        }
+    }
+
+
+    const handleStopCar = async (carId: number) => {
+        try {
+            const response = await fetch(`http://localhost:3000/engine?id=${carId}&status=stoped`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            setIsAnimating((prevState) => ({
+                ...prevState,
+                [carId]: false, // Set animation status for this car to true
+            }));
+        } catch (error) {
+            console.error('Error stopping car:', error);
+        }
+    }
+
     const handlePaginationChange = (page: number) => {
         setCurrentPage(page);
     };
@@ -199,11 +237,15 @@ const Garage: React.FC = () => {
             <h2>{viewName}</h2>
             <button onClick={generateRandomCars}>Generate Random Cars</button>
             <div className="car-list">{renderCars()}</div>
-            <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePaginationChange}
-            />
+            <div>
+                {/* Pagination controls */}
+                <button onClick={handlePrevPage} disabled={currentPage === 1}>
+                    Previous
+                </button>
+                <button onClick={handleNextPage} disabled={currentPage * pageSize >= totalCars}>
+                    Next
+                </button>
+            </div>
         </div>
     );
 };

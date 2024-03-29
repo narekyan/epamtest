@@ -7,6 +7,8 @@ interface PaginationProps {
 }
 
 const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
+
+
     const renderPageNumbers = () => {
         const pageNumbers = [];
         for (let i = 1; i <= totalPages; i++) {
@@ -22,7 +24,9 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
     return (
         <div className="pagination">
             <ul>{renderPageNumbers()}</ul>
+
         </div>
+
     );
 };
 
