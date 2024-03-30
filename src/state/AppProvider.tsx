@@ -1,26 +1,23 @@
 import React, { createContext, useContext, useState, ReactNode, Dispatch, SetStateAction } from 'react';
-
+import { Dictionary, SharedData } from './types';
 
 type AppProviderProps = {
   children: ReactNode;
 };
 
-type SharedData = {
-  pageNumberGarage: number;
-  pageNumberWinner: number;
-  winner: 0
-};
-type SetSharedData = Dispatch<SetStateAction<SharedData>>;
-
 const initialSharedData: SharedData = {
   pageNumberGarage: 1,
   pageNumberWinner: 1,
-  winner: 0
+  winner: 0,
+  carRaceState: {},
+  cars: [],
+  totalCars: 0
 };
 
 const AppContext = createContext<{
   sharedData: SharedData;
   setSharedData: React.Dispatch<React.SetStateAction<SharedData>>;
+
 }>({
   sharedData: initialSharedData,
   setSharedData: () => { },

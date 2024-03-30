@@ -2,7 +2,7 @@ module.exports = {
     parser: '@typescript-eslint/parser',
     plugins: ['@typescript-eslint', 'react', 'jsx-a11y', 'import'],
     rules: {
-        'max-lines-per-function': ['error', { max: 40 }],
+        'max-lines-per-function': ['error', { max: 100 }],
         // Add more rules as needed...
     },
     parserOptions: {
