@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Garage.css';
+import { useAppContext } from '../state/AppProvider';
+import { useServiceContext } from '../services/ApiService';
 
 const Garage: React.FC = () => {
-    const [cars, setCars] = useState<any[]>([]);
+    const { sharedData, setSharedData } = useAppContext();
+    const { apiService } = useServiceContext();
+
     const navigate = useNavigate();
-    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [cars, setCars] = useState<any[]>([]);
     const [viewName, setViewName] = useState<string>('Garage');
     const [velocity, setVelocity] = useState<{ [carId: number]: number }>({});
     const [translateValue, setTranslateValue] = useState<{ [carId: number]: number }>({});
@@ -13,17 +17,17 @@ const Garage: React.FC = () => {
     const [totalCars, setTotalCars] = useState<number>(0);
     const [pageSize] = useState(7);
     const [isRacing, setIsRacing] = useState(false);
-    const [winner, setWinner] = useState<number>(0);
 
+    const generateRandomCars = async () => {
 
-    const fetchCarsForPage = async (page: number) => {
-        const response = await fetch(`http://localhost:3000/garage?_page=${page}&_limit=7`);
-        const data = await response.json();
-        setTotalCars(getTotalCars(response));
-        if (data) {
-            setCars(data);
+        for (let i = 0; i < 100; i++) {
+            await postCar({ name: `Car ${i}`, color: getRandomColor() });
         }
+        fetchCarsForPage(1);
+    };
 
+    const getRandomColor = () => {
+        return `#${Math.floor(Math.random() * 16777215).toString(16)}`;
     };
 
     const handleRaceClick = async () => {
@@ -35,9 +39,12 @@ const Garage: React.FC = () => {
         for (const car of cars) {
             const element = document.getElementById(`car${car.id}`);
             element?.addEventListener("transitionend", () => {
-                if (winner == 0) {
-                    setWinner(car.id)
-                    alert(`Car ${car.name} won!`)
+                if (sharedData.winner == 0) {
+                    setSharedData((prevSharedData) => ({
+                        ...prevSharedData,
+                        winner: car.id,
+                    }));
+                    alert(`The car '${car.name}' won!`)
 
                     navigate(`/winners`)
                     handleResetClick()
@@ -50,6 +57,10 @@ const Garage: React.FC = () => {
                 [car.id]: newTranslateValue - 82,
             }));
         }
+        setSharedData((prevSharedData) => ({
+            ...prevSharedData,
+            winner: 0,
+        }));
         setIsRacing(true);
     };
 
@@ -69,34 +80,21 @@ const Garage: React.FC = () => {
         for (const car of cars) {
             await handleStopCar(car.id);
         }
-        console.log('Starting the race for all cars...');
         setIsRacing(false);
-        setWinner(0);
-    };
-
-    const getTotalCars = (response: Response) => {
-        const totalCountHeader = response.headers.get('X-Total-Count');
-        return totalCountHeader ? parseInt(totalCountHeader, 10) : 0;
     };
 
     const handleNextPage = () => {
-        setCurrentPage((prevPage) => prevPage + 1);
+        setSharedData((prevSharedData) => ({
+            ...prevSharedData,
+            pageNumberGarage: prevSharedData.pageNumberGarage + 1,
+        }));
     };
 
     const handlePrevPage = () => {
-        setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
-    };
-
-    const generateRandomCars = async () => {
-
-        for (let i = 0; i < 100; i++) {
-            await postCar({ name: `Car ${i}`, color: getRandomColor() });
-        }
-        fetchCarsForPage(1);
-    };
-
-    const getRandomColor = () => {
-        return `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+        setSharedData((prevSharedData) => ({
+            ...prevSharedData,
+            pageNumberGarage: Math.max(prevSharedData.pageNumberGarage - 1, 1),
+        }));
     };
 
     const handleNameChange = (index: number, newName: string) => {
@@ -110,6 +108,65 @@ const Garage: React.FC = () => {
             prevCars.map((car, i) => (i === index ? { ...car, color: newColor } : car))
         );
     };
+
+    const fetchCarsForPage = async (page: number) => {
+        const { data, headers } = await apiService.fetchData(`/garage?_page=${page}&_limit=${pageSize}`)
+        if (data) {
+            setCars(data);
+            setTotalCars(parseInt(headers.get('X-Total-Count') || '0'));
+        }
+
+    };
+
+    const postCar = async (car: { name: string; color: string }) => {
+        await apiService.postData('/garage', JSON.stringify(car))
+    };
+
+    const handleUpdateCar = async (carId: number, newName: string, newColor: string) => {
+        await apiService.putData(`/garage/${carId}`, JSON.stringify({ name: newName, color: newColor }))
+    };
+
+    const handleDeleteCar = async (carId: number) => {
+        const response = await apiService.deleteData(`/garage/${carId}`)
+        if (response.ok) {
+            setCars(prevCars => prevCars.filter(car => car.id !== carId));
+        }
+    };
+
+    //specific cat start
+    const handleStartCar = async (carId: number) => {
+        const data = await apiService.patchData(`/engine?id=${carId}&status=started`)
+        setVelocity((prevState) => ({
+            ...prevState,
+            [carId]: data.velocity,
+        }));
+        setIsAnimating((prevState) => ({
+            ...prevState,
+            [carId]: true,
+        }));
+    }
+
+    //specific car stop
+    const handleStopCar = async (carId: number) => {
+        const data = await apiService.patchData(`/engine?id=${carId}&status=stopped`)
+        setTranslateValue((prevState) => ({
+            ...prevState,
+            [carId]: 0,
+        }));
+        setVelocity((prevState) => ({
+            ...prevState,
+            [carId]: 0,
+        }));
+        setIsAnimating((prevState) => ({
+            ...prevState,
+            [carId]: false,
+        }));
+
+    }
+
+    useEffect(() => {
+        fetchCarsForPage(sharedData.pageNumberGarage);
+    }, [sharedData.pageNumberGarage]);
 
     // render cars list
     const renderCars = () => {
@@ -160,114 +217,6 @@ const Garage: React.FC = () => {
         ));
     };
 
-    const postCar = async (car: { name: string; color: string }) => {
-        await fetch('http://localhost:3000/garage', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(car),
-        });
-    };
-
-
-
-    const handleUpdateCar = async (carId: number, newName: string, newColor: string) => {
-        try {
-            const response = await fetch(`http://localhost:3000/garage/${carId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ name: newName, color: newColor }),
-            });
-            if (response.ok) {
-                setCars(prevCars =>
-                    prevCars.map(car =>
-                        car.id === carId ? { ...car, name: newName, color: newColor } : car
-                    )
-                );
-            } else {
-                // Handle error, show error message to the user
-                console.error('Failed to update car');
-            }
-        } catch (error) {
-            // Handle network error
-            console.error('Network error:', error);
-        }
-    };
-
-    const handleDeleteCar = async (carId: number) => {
-        try {
-            const response = await fetch(`http://localhost:3000/garage/${carId}`, {
-                method: 'DELETE',
-            });
-            if (response.ok) {
-                setCars(prevCars => prevCars.filter(car => car.id !== carId));
-            } else {
-                // Handle error, show error message to the user
-                console.error('Failed to delete car');
-            }
-        } catch (error) {
-            // Handle network error
-            console.error('Network error:', error);
-        }
-    };
-
-    //specific cat start
-    const handleStartCar = async (carId: number) => {
-        try {
-            const response = await fetch(`http://localhost:3000/engine?id=${carId}&status=started`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            const data = await response.json();
-
-            setVelocity((prevState) => ({
-                ...prevState,
-                [carId]: data.velocity,
-            }));
-            setIsAnimating((prevState) => ({
-                ...prevState,
-                [carId]: true,
-            }));
-        } catch (error) {
-            console.error('Error starting car:', error);
-        }
-    }
-
-    //specific car stop
-    const handleStopCar = async (carId: number) => {
-        try {
-            const response = await fetch(`http://localhost:3000/engine?id=${carId}&status=stopped`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            setTranslateValue((prevState) => ({
-                ...prevState,
-                [carId]: 0,
-            }));
-            setVelocity((prevState) => ({
-                ...prevState,
-                [carId]: 0,
-            }));
-            setIsAnimating((prevState) => ({
-                ...prevState,
-                [carId]: false,
-            }));
-        } catch (error) {
-            console.error('Error stopping car:', error);
-        }
-    }
-
-    useEffect(() => {
-        fetchCarsForPage(currentPage);
-    }, [currentPage]);
-
     return (
         <div className="garage-container">
             <h2>{viewName}</h2>
@@ -281,11 +230,11 @@ const Garage: React.FC = () => {
             <div className="car-list">{renderCars()}</div>
             {/* pagination */}
             <div>
-                <button style={{ marginRight: '5px' }} onClick={handlePrevPage} disabled={currentPage === 1}>
+                <button style={{ marginRight: '5px' }} onClick={handlePrevPage} disabled={sharedData.pageNumberGarage === 1}>
                     Previous
                 </button>
-                {currentPage}
-                <button style={{ marginLeft: '5px' }} onClick={handleNextPage} disabled={currentPage * pageSize >= totalCars}>
+                {sharedData.pageNumberGarage}
+                <button style={{ marginLeft: '5px' }} onClick={handleNextPage} disabled={sharedData.pageNumberGarage * pageSize >= totalCars}>
                     Next
                 </button>
             </div>

@@ -1,19 +1,37 @@
 import React, { useState, useEffect } from 'react';
-
+import { useAppContext } from '../state/AppProvider';
+import { useServiceContext } from '../services/ApiService';
 
 const Winners: React.FC = () => {
+    const { sharedData, setSharedData } = useAppContext();
+    const { apiService } = useServiceContext();
+
     const [winners, setWinners] = useState<any[]>([]);
-    const [currentPage, setCurrentPage] = useState<number>(1);
     const [viewName, setViewName] = useState<string>('Garage');
     const [totalWinners, setTotalWinners] = useState<number>(0);
     const [pageSize] = useState(7);
 
+    const handleNextPage = () => {
+        setSharedData((prevSharedData) => ({
+            ...prevSharedData,
+            pageNumberWinner: prevSharedData.pageNumberWinner + 1,
+        }));
+    };
+
+    const handlePrevPage = () => {
+        setSharedData((prevSharedData) => ({
+            ...prevSharedData,
+            pageNumberWinner: Math.max(prevSharedData.pageNumberWinner - 1, 1),
+        }));
+    };
+
+
     const fetchWinnersForPage = async (page: number) => {
-        const response = await fetch(`http://localhost:3000/winners?_page=${page}&_limit=7`);
-        const data = await response.json();
-        setTotalWinners(getTotalWinners(response));
+        const { data, headers } = await apiService.fetchData(`/winners?_page=${page}&_limit=${pageSize}`)
+
         if (data) {
             setWinners(data);
+            setTotalWinners(parseInt(headers.get('X-Total-Count') || '0'));
         }
 
     };
@@ -28,19 +46,17 @@ const Winners: React.FC = () => {
         });
     }
 
-    const getTotalWinners = (response: Response) => {
-        const totalCountHeader = response.headers.get('X-Total-Count');
-        return totalCountHeader ? parseInt(totalCountHeader, 10) : 0;
-    };
 
-    const handleNextPage = () => {
-        setCurrentPage((prevPage) => prevPage + 1);
-    };
+    useEffect(() => {
+        if (sharedData.winner != 0) {
+            postWinner({ id: sharedData.winner, wins: 1, time: 10 });
+        }
+    }, [])
 
-    const handlePrevPage = () => {
-        setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
-    };
+    useEffect(() => {
+        fetchWinnersForPage(sharedData.pageNumberWinner);
 
+    }, [sharedData.pageNumberWinner]);
 
     const renderWinners = () => {
         return winners.map((winner: any, index: number) => (
@@ -56,26 +72,17 @@ const Winners: React.FC = () => {
         ));
     };
 
-    useEffect(() => {
-        fetchWinnersForPage(currentPage);
-
-        postWinner({ id: 2, wins: 1, time: 10 });
-
-
-    }, [currentPage]);
-
-
-
     return (
         <div>
-            <h2>Winners</h2>
+            <h2>{viewName}</h2>
             <div className="winners-list">{renderWinners()}</div>
+            {/* pagination */}
             <div>
-                <button style={{ marginRight: '5px' }} onClick={handlePrevPage} disabled={currentPage === 1}>
+                <button style={{ marginRight: '5px' }} onClick={handlePrevPage} disabled={sharedData.pageNumberWinner === 1}>
                     Previous
                 </button>
-                {currentPage}
-                <button style={{ marginLeft: '5px' }} onClick={handleNextPage} disabled={currentPage * pageSize >= totalWinners}>
+                {sharedData.pageNumberWinner}
+                <button style={{ marginLeft: '5px' }} onClick={handleNextPage} disabled={sharedData.pageNumberWinner * pageSize >= totalWinners}>
                     Next
                 </button>
             </div>
