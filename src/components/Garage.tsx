@@ -17,6 +17,7 @@ const Garage: React.FC = () => {
     const [totalCars, setTotalCars] = useState<number>(0);
     const [pageSize] = useState(7);
     const [carSize] = useState(60);
+    const [winnerName, setWinnerName] = useState<string>('');
     const [isRacing, setIsRacing] = useState(false);
 
     const generateRandomCars = async () => {
@@ -45,7 +46,7 @@ const Garage: React.FC = () => {
                         ...prevSharedData,
                         winner: car.id,
                     }));
-                    alert(`The car '${car.name}' won!`)
+                    setWinnerName(car.name)
 
                     navigate(`/winners`)
                     handleResetClick()
@@ -81,6 +82,7 @@ const Garage: React.FC = () => {
         for (const car of cars) {
             await handleStopCar(car.id);
         }
+        setWinnerName('')
         setIsRacing(false);
     };
 
@@ -174,7 +176,7 @@ const Garage: React.FC = () => {
         return cars.map((car: any, index: number) => (
             <div key={index} className="car" >
                 {/* buttons */}
-                <div className='name-color' style={{ marginBottom: '5px', display: isRacing ? 'none' : 'block' }}>
+                <div className='name-color' style={{ display: isRacing ? 'none' : 'block' }}>
                     <input
                         type="text"
                         value={car.name}
@@ -223,6 +225,7 @@ const Garage: React.FC = () => {
             <div className='race-generate'>
                 <div>
                     <button disabled={isRacing} onClick={handleRaceClick}>Race</button>
+                    {winnerName === '' ? '' : `Car with name '${winnerName}' won!!`}
                     <button disabled={!isRacing} onClick={handleResetClick}>Reset</button>
                 </div>
                 <button onClick={generateRandomCars}>Generate Random Cars</button>

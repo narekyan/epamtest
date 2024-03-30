@@ -38,6 +38,10 @@ const Winners: React.FC = () => {
 
     const postWinner = async (winner: { id: number; wins: number; time: number }) => {
         await apiService.postData(`winner`, JSON.stringify(winner))
+        setSharedData((prevSharedData) => ({
+            ...prevSharedData,
+            winner: 0
+        }));
     }
 
 
