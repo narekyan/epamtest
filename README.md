@@ -1,7 +1,7 @@
 ## Score
-325
+285
 ## Link
-
+https://narekyan.github.io/epamtest
 ## Checklist
 
 ## 🚀 UI Deployment
@@ -15,7 +15,7 @@
 
 - [X] **Score calculation:** Use this checklist to calculate your score. Check all implemented features, then calculate your score and put it at the top of the `README.md`.
 
-- [ ] **UI Deployment link in README.md**: Place the link to the deployed UI at the top of the README.md file, alongside the calculated score. 
+- [x] **UI Deployment link in README.md**: Place the link to the deployed UI at the top of the README.md file, alongside the calculated score. 
 
 ## 🏁 Basic Structure (85 points)
 
@@ -23,7 +23,7 @@
 
 - [X] **Two Views (10 points):** Implement two primary views: "Garage" and "Winners".
 - [X] **Garage View Content (5 points):** The "Garage" view must display its name, the current page number, and the total number of cars in the database (how many car user has in his garage).
-- [X] **Winners View Content (5 points):** The "Winners" view should similarly display its name, the current page number, and the total count of records in the database (how many records the winners table contains).
+- [ ] **Winners View Content (5 points):** The "Winners" view should similarly display its name, the current page number, and the total count of records in the database (how many records the winners table contains).
 - [X] **Persistent State (10 points):** Ensure the view state remains consistent when navigating between views. This includes preserving page numbers and input states. For example, page number shouldn't be reset, input controls should contain that they contained before switching, etc.
 
 ### 2. Garage View Functionality (55 points)
@@ -56,7 +56,7 @@
 ## 🏆 Winners View (45 points)
 
 - [x] **Display Winners (15 points):** After some car wins it should be displayed at the "Winners view" table.
-- [x] **Pagination for Winners (10 points):** Implement pagination for the "Winners" view, with 10 winners per page.
+- [ ] **Pagination for Winners (10 points):** Implement pagination for the "Winners" view, with 10 winners per page.
 - [ ] **Winners Table (10 points):** The table should include columns for the car's №, image, name, number of wins, and best time in seconds. If the same car wins more than once the number of wins should be incremented while best time should be saved only if it's better than the stored one.
 - [ ] **Sorting Functionality (10 points):** Allow users to sort the table by the number of wins and best time, in ascending or descending order.
 
@@ -78,7 +78,7 @@
 
 ## ✅ Code Quality and Standards (15 points)
 
-- [x] **Eslint with Airbnb Style Guide (15 points):** Code must adhere to the Airbnb ESLint configuration to maintain code quality, as outlined in the [Airbnb style guide](https://www.npmjs.com/package/eslint-config-airbnb). Specific rules may be adjusted only with mentor approval, and there should be no ESLint errors or warnings.
+- [ ] **Eslint with Airbnb Style Guide (15 points):** Code must adhere to the Airbnb ESLint configuration to maintain code quality, as outlined in the [Airbnb style guide](https://www.npmjs.com/package/eslint-config-airbnb). Specific rules may be adjusted only with mentor approval, and there should be no ESLint errors or warnings.
 
 ## 📏 Code Organization and Efficiency (15 points)
 

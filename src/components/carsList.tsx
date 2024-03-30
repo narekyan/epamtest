@@ -8,12 +8,22 @@ const CarsList: React.FC<{
     onHandleNameChange: (index: number, newName: string) => void;
     onHandleColorChange: (index: number, newColor: string) => void;
     onHandleDelete: (id: number) => void;
-    onHandleUpdate: (id: number) => void;
+    onHandleUpdate: (id: number, name: string, color: string) => void;
     onHandleStart: (id: number) => void;
     onHandleStop: (id: number) => void;
 }> = ({ cars, carRaceState, isRacing, onHandleNameChange, onHandleColorChange, onHandleDelete, onHandleUpdate, onHandleStart, onHandleStop }) => {
 
     const [carSize] = useState(60);
+    const [inputValue1, setInputValue1] = useState('');
+    const [inputValue2, setInputValue2] = useState('');
+
+    const handleInputChange1 = (event: any) => {
+        setInputValue1(event.target.value);
+    };
+
+    const handleInputChange2 = (event: any) => {
+        setInputValue2(event.target.value);
+    };
     return (
         <div className="car-list">
             {cars.map((car: any, index: number) => (
@@ -23,16 +33,16 @@ const CarsList: React.FC<{
                         <input
                             type="text"
                             value={car.name}
-                            onChange={(e) => onHandleNameChange(index, e.target.value)}
+                            onChange={handleInputChange1}
                         />
                         <div className="color-preview" style={{ backgroundColor: car.color }}></div>
                         <input
                             type="color"
                             value={car.color}
-                            onChange={(e) => onHandleColorChange(index, e.target.value)}
+                            onChange={handleInputChange2}
                             style={{ width: '30px' }}
                         />
-                        <button className='button marginRight' onClick={() => onHandleUpdate(car.id)}>Update</button>
+                        <button className='button marginRight' onClick={() => onHandleUpdate(car.id, inputValue1, inputValue2)}>Update</button>
 
                         <button onClick={() => onHandleDelete(car.id)}>Delete</button>
                     </div>

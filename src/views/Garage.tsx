@@ -25,11 +25,9 @@ const Garage: React.FC = () => {
             pageNumberGarage: Math.max(prevSharedData.pageNumberGarage - 1, 1),
         }));
     };
-
     const handleResetClick = () => {
         setIsRacing(false);
     }
-
     const handleRaceClick = () => {
         setSharedData((prevSharedData) => ({
             ...prevSharedData,
@@ -37,13 +35,12 @@ const Garage: React.FC = () => {
         }));
         setIsRacing(true);
     }
-
     const handleNameChange = (index: number, newName: string) => {
         const cars = { ...sharedData.cars };
         cars[index].name = newName
         setSharedData((prevSharedData) => ({
             ...prevSharedData,
-            carRaceState: cars,
+            cars: cars,
         }));
     };
 
@@ -52,7 +49,7 @@ const Garage: React.FC = () => {
         cars[index].color = newColor
         setSharedData((prevSharedData) => ({
             ...prevSharedData,
-            carRaceState: cars,
+            cars: cars,
         }));
     };
 
@@ -92,7 +89,7 @@ const Garage: React.FC = () => {
                 onHandleColorChange={handleColorChange}
                 onHandleNameChange={handleNameChange}
                 onHandleDelete={(carId) => carsNetwork.handleDeleteCar(carId, setSharedData)}
-                onHandleUpdate={(carId) => carsNetwork.handleUpdateCar(carId, sharedData)}
+                onHandleUpdate={(carId, name, color) => carsNetwork.handleUpdateCar(carId, name, color, setSharedData)}
                 onHandleStart={handleStartClick}
                 onHandleStop={(carId) => carsNetwork.handleStopCar(carId, sharedData, setSharedData)}
             />

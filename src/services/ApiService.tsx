@@ -13,7 +13,7 @@ const ApiService = (baseUrl: string) => {
         });
     };
     const putData = async (endpoint: string, body: string) => {
-        await fetch(`${baseUrl}${endpoint}`, {
+        return await fetch(`${baseUrl}${endpoint}`, {
             method: 'PUT',
             body: body,
         });

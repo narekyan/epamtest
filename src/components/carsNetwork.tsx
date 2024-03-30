@@ -31,10 +31,18 @@ export const postCar = async (car: { name: string; color: string }) => {
     await ServiceContext.apiService.postData('/garage', JSON.stringify(car))
 };
 
-export const handleUpdateCar = async (carId: number, sharedData: SharedData) => {
-
-    const car = sharedData.cars.filter(car => car.id == carId)
-    await ServiceContext.apiService.putData(`/garage/${carId}`, JSON.stringify(car))
+export const handleUpdateCar = async (carId: number, name: string, color: string, setSharedData: React.Dispatch<React.SetStateAction<SharedData>>) => {
+    const response = await ServiceContext.apiService.putData(`/garage/${carId}`, JSON.stringify({ name: name, color: color }))
+    if (response.ok) {
+        setSharedData((prevSharedData) => ({
+            ...prevSharedData,
+            cars: prevSharedData.cars.filter(car => car.id !== carId),
+        }));
+        setSharedData((prevSharedData) => ({
+            ...prevSharedData,
+            cars: prevSharedData.cars.concat({ id: carId, name: name, color: color }),
+        }));
+    }
 };
 
 export const handleDeleteCar = async (carId: number, setSharedData: React.Dispatch<React.SetStateAction<SharedData>>) => {
