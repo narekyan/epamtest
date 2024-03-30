@@ -8,6 +8,7 @@
 
 .winner {
   margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 .winner-list {
@@ -17,4 +18,12 @@
 .winner-cont {
   width: 100%;
   background-color: aqua;
+}
+
+.margin-right {
+  margin-right: 5px;
+}
+
+.margin-left {
+  margin-left: 5px;
 }

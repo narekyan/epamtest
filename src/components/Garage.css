@@ -8,6 +8,7 @@
 
 .car {
   margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 .car-list {
@@ -17,16 +18,29 @@
 .car-cont {
   width: 100%;
   background-color: aqua;
+  margin-top: '5px'
 }
 
 .name-color {
   display: flex;
   justify-content: flex-start;
+  margin-bottom: 5px;
+}
 
+.color-preview {
+  margin-left: 5dp;
 }
 
 .race-generate {
   width: 100%;
   display: flex;
   justify-content: space-between;
+}
+
+.marginRight {
+  margin-right: 5px;
+}
+
+.marginLeft {
+  margin-left: 5px;
 }

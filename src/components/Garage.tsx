@@ -16,6 +16,7 @@ const Garage: React.FC = () => {
     const [isAnimating, setIsAnimating] = useState<{ [carId: number]: boolean }>({});
     const [totalCars, setTotalCars] = useState<number>(0);
     const [pageSize] = useState(7);
+    const [carSize] = useState(60);
     const [isRacing, setIsRacing] = useState(false);
 
     const generateRandomCars = async () => {
@@ -54,7 +55,7 @@ const Garage: React.FC = () => {
             const newTranslateValue = window.innerWidth;
             setTranslateValue((prevState) => ({
                 ...prevState,
-                [car.id]: newTranslateValue - 82,
+                [car.id]: newTranslateValue - carSize - 20, // some padding
             }));
         }
         setSharedData((prevSharedData) => ({
@@ -71,7 +72,7 @@ const Garage: React.FC = () => {
         const newTranslateValue = window.innerWidth;
         setTranslateValue((prevState) => ({
             ...prevState,
-            [carId]: newTranslateValue - 82,
+            [carId]: newTranslateValue - carSize - 20, // some padding
         }));
     }
 
@@ -171,32 +172,31 @@ const Garage: React.FC = () => {
     // render cars list
     const renderCars = () => {
         return cars.map((car: any, index: number) => (
-            <div key={index} className="car" style={{ marginBottom: '10px' }}>
+            <div key={index} className="car" >
                 {/* buttons */}
                 <div className='name-color' style={{ marginBottom: '5px', display: isRacing ? 'none' : 'block' }}>
                     <input
                         type="text"
                         value={car.name}
                         onChange={(e) => handleNameChange(index, e.target.value)}
-                        style={{ marginRight: '5px' }}
                     />
                     <div className="color-preview" style={{ backgroundColor: car.color }}></div>
                     <input
                         type="color"
                         value={car.color}
                         onChange={(e) => handleColorChange(index, e.target.value)}
-                        style={{ width: '30px', marginRight: '5px' }}
+                        style={{ width: '30px' }}
                     />
-                    <button style={{ marginRight: '5px' }} onClick={() => handleUpdateCar(car.id, car.name, car.color)}>Update</button>
+                    <button className='button marginRight' onClick={() => handleUpdateCar(car.id, car.name, car.color)}>Update</button>
 
                     <button onClick={() => handleDeleteCar(car.id)}>Delete</button>
                 </div>
-                <div style={{ marginBottom: '5px', display: isRacing ? 'none' : 'block' }}>
-                    <button style={{ marginRight: '5px' }} disabled={isAnimating[car.id]} onClick={() => handleStartClick(car.id)}>Start</button>
+                <div style={{ display: isRacing ? 'none' : 'block' }}>
+                    <button className='button marginRight' disabled={isAnimating[car.id]} onClick={() => handleStartClick(car.id)}>Start</button>
                     <button disabled={!isAnimating[car.id]} onClick={() => handleStopCar(car.id)}>Stop</button>
                 </div>
                 {/* car icon */}
-                <div className='car-cont' style={{ width: '100%' }}>
+                <div className='car-cont'>
                     <div id={`car${car.id}`} className="car-container" style={{ paddingTop: '3px', paddingLeft: '2px' }}>
                         <img
                             className="car-icon"
@@ -204,9 +204,9 @@ const Garage: React.FC = () => {
                             alt="Car Icon"
                             style={{
                                 backgroundColor: car.color,
-                                width: '60px',
-                                height: '50px',
-                                transition: `transform ${velocity[car.id] * 0.1}s linear`,
+                                width: `${carSize}px`,
+                                height: `${carSize}px`,
+                                transition: `transform ${velocity[car.id] * 0.1}s linear`, // made animation time 10 perscent of velocity
                                 transform: `translateX(${translateValue[car.id]}px)`
                             }}
                         />
@@ -230,11 +230,11 @@ const Garage: React.FC = () => {
             <div className="car-list">{renderCars()}</div>
             {/* pagination */}
             <div>
-                <button style={{ marginRight: '5px' }} onClick={handlePrevPage} disabled={sharedData.pageNumberGarage === 1}>
+                <button className='button marginRight' onClick={handlePrevPage} disabled={sharedData.pageNumberGarage === 1}>
                     Previous
                 </button>
                 {sharedData.pageNumberGarage}
-                <button style={{ marginLeft: '5px' }} onClick={handleNextPage} disabled={sharedData.pageNumberGarage * pageSize >= totalCars}>
+                <button className='button marginLeft' onClick={handleNextPage} disabled={sharedData.pageNumberGarage * pageSize >= totalCars}>
                     Next
                 </button>
             </div>

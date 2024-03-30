@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Garage from './components/Garage';
-import Winners from './components/Winners';
-import { AppProvider } from './state/AppProvider';
+import Garage from './Garage';
+import Winners from './Winners';
+import { AppProvider } from '../state/AppProvider';
 
 function App() {
   return (

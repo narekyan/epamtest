@@ -37,13 +37,7 @@ const Winners: React.FC = () => {
     };
 
     const postWinner = async (winner: { id: number; wins: number; time: number }) => {
-        await fetch('http://localhost:3000/winner', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(winner),
-        });
+        await apiService.postData(`winner`, JSON.stringify(winner))
     }
 
 
@@ -60,9 +54,9 @@ const Winners: React.FC = () => {
 
     const renderWinners = () => {
         return winners.map((winner: any, index: number) => (
-            <div key={index} className="winner" style={{ marginBottom: '10px' }}>
+            <div key={index} className="winner" >
 
-                <div className='winner-cont' style={{ width: '100%' }}>
+                <div className='winner-cont'>
                     <div id={`winner${winner.id}`} className="winner-container" style={{ paddingTop: '3px', paddingLeft: '2px' }}>
                         {winner.id}
                     </div>
@@ -78,11 +72,11 @@ const Winners: React.FC = () => {
             <div className="winners-list">{renderWinners()}</div>
             {/* pagination */}
             <div>
-                <button style={{ marginRight: '5px' }} onClick={handlePrevPage} disabled={sharedData.pageNumberWinner === 1}>
+                <button className='button margin-right' onClick={handlePrevPage} disabled={sharedData.pageNumberWinner === 1}>
                     Previous
                 </button>
                 {sharedData.pageNumberWinner}
-                <button style={{ marginLeft: '5px' }} onClick={handleNextPage} disabled={sharedData.pageNumberWinner * pageSize >= totalWinners}>
+                <button className='button margin-left' onClick={handleNextPage} disabled={sharedData.pageNumberWinner * pageSize >= totalWinners}>
                     Next
                 </button>
             </div>
